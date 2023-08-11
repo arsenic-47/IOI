@@ -36,3 +36,4 @@ if(message.content.toLowerCase().includes("dead")) {
 
 client.login(process.env.token);
 
+// test 
