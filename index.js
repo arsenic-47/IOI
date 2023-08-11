@@ -34,6 +34,6 @@ if(message.content.toLowerCase().includes("dead")) {
 })
 
 
-client.login(process.env.token);
+client.login("MTEzOTAzMjA3MTE4OTMxMTU4OA.GzeXsN.4ZsbUKpd-6tpZQtQS6Yn80EHzzCYeGh7Ilq7nE");
 
 // test 
