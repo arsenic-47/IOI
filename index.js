@@ -17,6 +17,12 @@ client.on("messageCreate", async message => {
   if(message.content.toLowerCase() === "ping") {
     message.channel.send("pong")
   }
+  if(message.content.toLowerCase() === "gay") {
+    message.channel.send("why are you gay")
+  }
+  if(message.content.toLowerCase() === "im not gay") {
+    message.channel.send("you are gay")
+  }
   if(message.content.toLowerCase() === "ba bitches") {
     message.channel.send("ba ba")
   }
