@@ -1,5 +1,6 @@
 async function randomNumber (number) {
-        this.random = Math.floor(Math.random()*number)
-        return this.random
+        random = Math.floor(Math.random()*number)
+        return random
     }
+
 module.exports = randomNumber
