@@ -12,6 +12,14 @@ const {truthOrDare} = require("multi-purpose")
 const Discord = require("discord.js");
 const {EmbedBuilder} = Discord
 const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent'] })
+ const fs = require("fs") 
+ const commandFiles = fs.readdirSync("./commands")
+client.commands = new Map()
+for (const fileName in commandFiles) {
+  const data = require(__dirname+`/commands/${fileName }`)
+  client.commands.set(fileName .split(".")[0], data)
+}
+console.log(client.commands)
 client.on("messageCreate", async message => {
 
   if(message.content.toLowerCase() === "ping") {
