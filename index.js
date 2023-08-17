@@ -11,13 +11,21 @@ app.get("/", (req, res) => {
 const {truthOrDare} = require("multi-purpose")
 const Discord = require("discord.js");
 const {EmbedBuilder} = Discord
-const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent'] })
+const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent'], allowedMentions: {repliedUser: false} })
  const fs = require("fs") 
  const commandFiles = fs.readdirSync("./commands")
 client.commands = new Map()
-for (const fileName in commandFiles) {
-  const data = require(__dirname+`/commands/${fileName }`)
+client.config = require(__dirname+"/config.json")
+for (const fileName of commandFiles) {
+  const data = require(__dirname+`/commands/${fileName}`)
   client.commands.set(fileName .split(".")[0], data)
+}
+const functionFiles = fs.readdirSync(__dirname+"/functions")
+client.functions = {}
+for (const fileName of functionFiles) {
+  const data = require(__dirname+`/functions/${fileName}`)
+  const functionName = fileName.split(".")[0]
+  client.functions[functionName] = data
 }
 console.log(client.commands)
 client.on("messageCreate", async message => {
@@ -45,7 +53,14 @@ if(message.content.toLowerCase().includes("dead")) {
 	.setDescription(`# ${selectedChallenges}`)
   message.channel.send({ embeds: [TOD_Embed] });
 }
+
+const args = message.content.split(" ")
+const cmd = args.shift()
+const command = client.commands.get(cmd.split(client.config.prefix)[1])
+if(cmd.startsWith(client.config.prefix) && command) {
+  await command.run(client, message, args)
+}
 })
 
 
-client.login("MTEzOTAzMjA3MTE4OTMxMTU4OA.GzeXsN.4ZsbUKpd-6tpZQtQS6Yn80EHzzCYeGh7Ilq7nE");
+client.login(client.config.token);
