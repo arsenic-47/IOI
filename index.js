@@ -13,12 +13,15 @@ const Discord = require("discord.js");
 const {EmbedBuilder} = Discord
 const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent'], allowedMentions: {repliedUser: false} })
  const fs = require("fs") 
- const commandFiles = fs.readdirSync("./commands")
+ const Categories = fs.readdirSync("./commands")
 client.commands = new Map()
 client.config = require(__dirname+"/config.json")
-for (const fileName of commandFiles) {
-  const data = require(__dirname+`/commands/${fileName}`)
-  client.commands.set(fileName .split(".")[0], data)
+for (const category of Categories) {
+  fs.readdirSync(__dirname+`/commands/${category}`).forEach(commandFileName => {
+    const data = require(__dirname+`/commands/${category}/${commandFileName}`)
+    data.category = category
+    client.commands.set(commandFileName.split(".")[0], data)
+  })
 }
 const functionFiles = fs.readdirSync(__dirname+"/functions")
 client.functions = {}
@@ -27,7 +30,6 @@ for (const fileName of functionFiles) {
   const functionName = fileName.split(".")[0]
   client.functions[functionName] = data
 }
-console.log(client.commands)
 client.on("messageCreate", async message => {
 
   if(message.content.toLowerCase() === "ping") {
@@ -64,3 +66,5 @@ if(cmd.startsWith(client.config.prefix) && command) {
 
 
 client.login(client.config.token);
+
+require(__dirname+"/table.js")(client)
