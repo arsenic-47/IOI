@@ -35,8 +35,8 @@ client.on("messageCreate", async message => {
   if(message.content.toLowerCase() === "ping") {
     message.channel.send("pong")
   }
-  if(message.content.toLowerCase() === "you are not brave") {
-    message.channel.send("men are brave")
+  if(message.content.toLowerCase() === "batman") {
+    message.channel.send("It's not who I am underneath, but what I do that defines me")
   }
   if(message.content.toLowerCase() === "good bot") {
     message.channel.send("thanks daddy")
