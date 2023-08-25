@@ -74,6 +74,6 @@ if(cmd.startsWith(client.config.prefix) && command) {
 })
 
 
-client.login(client.config.token);
+client.login(process.env.token);
 
 require(__dirname+"/table.js")(client)
