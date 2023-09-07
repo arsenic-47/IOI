@@ -12,7 +12,7 @@ const express = require("express");
 const app =  express();
 
 app.listen(5000, ()=> {
-  console.log("project is running!");
+  console.log("Express is running!");
 })
 
 app.get("/", (req, res) => { 
@@ -22,13 +22,15 @@ const {truthOrDare} = require("multi-purpose")
 const Discord = require("discord.js");
 const {EmbedBuilder} = Discord
 const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent', 'GuildMembers', 'GuildBans', 'GuildModeration', 'GuildIntegrations'], allowedMentions: {repliedUser: false}, partials: [Discord.Partials.GuildMember, Discord.Partials.Channel, Discord.Partials.Message]})
- const fs = require("fs") 
+client.dir = __dirname 
+const fs = require("fs") 
  const Categories = fs.readdirSync("./commands")
 client.commands = new Map()
 client.config = require(__dirname+"/config.json")
 module.exports = client
 for (const category of Categories) {
   fs.readdirSync(__dirname+`/commands/${category}`).forEach(commandFileName => {
+    if(!commandFileName.includes('.js')) return;
     const data = require(__dirname+`/commands/${category}/${commandFileName}`)
     data.category = category
     client.commands.set(commandFileName.split(".")[0], data)
@@ -83,8 +85,19 @@ if(cmd.startsWith(client.config.prefix) && command) {
   await command.run(client, message, args)
 }
 })
+import("chalk").then(ch => {
+  const chalk = ch.default
+  let TOKEN;
+  try {
+    TOKEN = fs.readFileSync("token.txt", 'utf-8')
+  }catch (e) {}
+  const token = process.env.token || TOKEN
+  if(!token) {
+    console.log(chalk.red("Missing token."))
+    process.exit(0)
+  } else {
+      client.login(token)
+  }
 
-
-client.login(process.env.token);
-
-require(__dirname+"/table.js")(client)
+  require(__dirname+"/table.js")(client)
+})
