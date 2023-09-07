@@ -1,3 +1,13 @@
+String.prototype.replaceMs = function () {
+  let msString = this
+  msString = msString.replace("ms", ` millisecond${msString.startsWith("1") ? '' : 's'}`)
+  msString = msString.replace("s", ` second${msString.startsWith("1") ? '' : 's'}`)
+  msString = msString.replace("m", ` minute${msString.startsWith("1") ? '' : 's'}`)
+  msString = msString.replace("h", ` hour${msString.startsWith("1") ? '' : 's'}`)
+  msString = msString.replace("d", ` day${msString.startsWith("1") ? '' : 's'}`)
+  msString = msString.replace("w", ` week${msString.startsWith("1") ? '' : 's'}`)
+  return msString
+}
 const express = require("express");
 const app =  express();
 
@@ -11,11 +21,12 @@ app.get("/", (req, res) => {
 const {truthOrDare} = require("multi-purpose")
 const Discord = require("discord.js");
 const {EmbedBuilder} = Discord
-const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent'], allowedMentions: {repliedUser: false} })
+const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent', 'GuildMembers', 'GuildBans', 'GuildModeration', 'GuildIntegrations'], allowedMentions: {repliedUser: false}, partials: [Discord.Partials.GuildMember, Discord.Partials.Channel, Discord.Partials.Message]})
  const fs = require("fs") 
  const Categories = fs.readdirSync("./commands")
 client.commands = new Map()
 client.config = require(__dirname+"/config.json")
+module.exports = client
 for (const category of Categories) {
   fs.readdirSync(__dirname+`/commands/${category}`).forEach(commandFileName => {
     const data = require(__dirname+`/commands/${category}/${commandFileName}`)

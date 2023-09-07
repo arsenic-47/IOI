@@ -1,22 +1,26 @@
 module.exports = {
     description: "Kick a member from the server.",
-    usage: "<@member [id/mention/username]> [reason]",
+    usage: "<@member> [reason]",
     run: async (client, message, args) => {
-        client.functions.logModeration("kick")
         if (!message.member.roles.cache.find(role => role.id === client.config.staffRole)) {
             return message.reply("You don't have permission to kick members.");
         }
-
+      const guild = client.guilds.cache.get(message.guild.id)
         // Check if a user was mentioned
-        const member = message.mentions.members.first() || message.guild.members.cache.get(args[0]) || message.guild.members.cache.find(member => member.user.username === args[0]);
-        if (!member) {
-            return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username");
+      const members = await guild.members.fetch()
+        const member = message.mentions.members.first() || members.get(args[0]) || guild.members.cache.find(member => member.user.username === args[0]);
+        if(guild.bans.cache.get(client.users.cache.get(args[0]) || client.users.cache.find(user => user.username === args[0]) || args[0])) {
+        return message.reply("Member has got banned from the server.")
+        }else if (!member) {
+            return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username\n(Maybe the member isn't in the server...)");
         }
 
         if (member.roles.highest.position >= message.member.roles.highest.position) {
             return message.reply("Cannot kick this member since they have a higher role than you.");
-        } else if (member.roles.highest.position >= message.guild.members.me.roles.highest.position) {
+        } else if (member.roles.highest.position >= guild.members.me.roles.highest.position) {
             return message.reply("Cannot kick this member since they have a higher role than me.");
+        }else if (member.user.bot) {
+          return message.reply("Invalid request:\n> cannot apply moderation action to bots.")
         }
 
         // Get the reason for the kick
@@ -32,5 +36,6 @@ module.exports = {
             console.error(error);
             message.reply("An error occurred while trying to kick the user.");
         }
+      client.functions.logModeration("kick", message.author, member, guild, reason, null, Date.now())
     }
 };
