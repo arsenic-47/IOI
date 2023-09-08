@@ -19,9 +19,30 @@ app.get("/", (req, res) => {
   res.send("hello world!");
 })
 const {truthOrDare} = require("multi-purpose")
-const Discord = require("discord.js");
-const {EmbedBuilder} = Discord
-const client = new Discord.Client({ intents: ['Guilds','GuildMessages','MessageContent', 'GuildMembers', 'GuildBans', 'GuildModeration', 'GuildIntegrations'], allowedMentions: {repliedUser: false}, partials: [Discord.Partials.GuildMember, Discord.Partials.Channel, Discord.Partials.Message]})
+const {GatewayIntentBits, EmbedBuilder, Client, Partials} = require("discord.js");
+const client = new Client({ intents: [
+  GatewayIntentBits.Guilds,
+GatewayIntentBits.GuildMembers,
+GatewayIntentBits.GuildModeration,
+GatewayIntentBits.GuildEmojisAndStickers,
+GatewayIntentBits.GuildIntegrations,
+GatewayIntentBits.GuildWebhooks,
+GatewayIntentBits.GuildInvites,
+GatewayIntentBits.GuildVoiceStates,
+GatewayIntentBits.GuildPresences,
+GatewayIntentBits.GuildMessages,
+GatewayIntentBits.GuildMessageReactions,
+GatewayIntentBits.GuildMessageTyping,
+GatewayIntentBits.DirectMessages,
+GatewayIntentBits.DirectMessageReactions,
+GatewayIntentBits.DirectMessageTyping,
+GatewayIntentBits.MessageContent,
+GatewayIntentBits.GuildScheduledEvents,
+GatewayIntentBits.AutoModerationConfiguration,
+GatewayIntentBits.AutoModerationExecution
+],
+partials: [Partials.Channel],
+allowedMentions: {repliedUser: false}})
 client.dir = __dirname 
 const fs = require("fs") 
  const Categories = fs.readdirSync("./commands")
@@ -43,8 +64,10 @@ for (const fileName of functionFiles) {
   const functionName = fileName.split(".")[0]
   client.functions[functionName] = data
 }
+client.on("interactionCreate", async interaction => {
+  console.log(interaction)
+})
 client.on("messageCreate", async message => {
-
   if(message.content.toLowerCase() === "ping") {
     message.channel.send("pong")
   }
@@ -85,19 +108,10 @@ if(cmd.startsWith(client.config.prefix) && command) {
   await command.run(client, message, args)
 }
 })
-import("chalk").then(ch => {
-  const chalk = ch.default
-  let TOKEN;
+let TOKEN;
   try {
     TOKEN = fs.readFileSync("token.txt", 'utf-8')
   }catch (e) {}
   const token = process.env.token || TOKEN
-  if(!token) {
-    console.log(chalk.red("Missing token."))
-    process.exit(0)
-  } else {
-      client.login(token)
-  }
-
-  require(__dirname+"/table.js")(client)
-})
+  !token ? (console.log("Missing token."), process.exit(0)) : client.login(token);
+require(__dirname+"/table.js")(client)

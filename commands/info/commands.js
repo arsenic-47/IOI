@@ -1,5 +1,9 @@
 const { readdirSync, readFileSync } = require("fs")
 const { join } = require("path")
+/**
+ * @param {} message
+ * @returns
+ */
 module.exports = {
     description: "Show user the commands",
     run: async (client, message, args) => {
@@ -8,7 +12,7 @@ module.exports = {
         return emojis[dir] = readFileSync(join(client.dir, "commands", dir, "emoji.txt"), "utf-8")
       })
       const ms = require("ms")
-        const {EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder} = require("discord.js")
+        const {EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, Collector, InteractionCollector, MessageCollector} = require("discord.js")
         const embeds = [new EmbedBuilder()
         .setTitle("Bot commands - Total: "+client.commands.size)
         .setDescription("# Select a category")]
@@ -46,12 +50,11 @@ module.exports = {
         .setDescription(`## ${category} - Total: ${fields.length}`)
         .setFields(fields)
         embeds.push(newEmbed)
-        options.push(
-          new StringSelectMenuOptionBuilder()
-          .setLabel(category)
-          .setEmoji(emojis[category])
-          .setValue(`${index}`)
-          )
+        const stringSelectOption = new StringSelectMenuOptionBuilder()
+        .setLabel(category)
+        .setEmoji(emojis[category])
+        .setValue(`${index}`)
+        options.push(stringSelectOption)
       }
       const selectMenu = new StringSelectMenuBuilder()
       .setCustomId("selectCategory")
@@ -61,15 +64,19 @@ module.exports = {
         )
       const selectCategory = new ActionRowBuilder()
       .addComponents(selectMenu)
-      const msg = await message.reply({components: [selectCategory]})
-      client.functions.dataAction({add: true}, "selectMenuData", selectMenu.data.custom_id)
-      return setTimeout(() => {
+      const msg = await message.reply({embeds: [embeds[0]], components: [selectCategory]})
+      const filter = (i) => i.user.id === message.author.id
+      const collector = msg.createMessageComponentCollector({componentType: ComponentType.StringSelect, filter, time: ms("10 seconds")})
+      collector.on('collect', i => {
+        console.log(i)
+      })
+      collector.on('end', () => {
         selectMenu.setDisabled(true)
         const msgToEdit = message.channel.messages.cache.get(msg.id)
         if(!msgToEdit) return;
-        embeds[0].description = '# Outdated commands panel.'
-        msgToEdit.edit({embeds: [message.embeds[0]], components: [selectCategory]})
-        client.functions.dataAction({remove: true}, "selectMenuData", selectMenu.data.custom_id)
-      }, ms("10 seconds"))
+        embeds[0].data.description = '# Outdated commands panel.'
+        const editedEmbed = embeds[0]
+        msgToEdit.edit({embeds: [editedEmbed], components: [selectCategory]})
+      })
     }
 }
