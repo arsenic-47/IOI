@@ -1,7 +1,7 @@
 module.exports = function (caseNumber) {
     const fs = require('fs')
     try {
-        const banCasesDateData = fs.readFileSync('banCasesDate.txt', 'utf8');
+        const banCasesDateData = fs.readFileSync('data/banCasesDate.txt', 'utf8');
         const banCasesDateArray = banCasesDateData.trim().split('\n');
         if (caseNumber >= 0 && caseNumber < banCasesDateArray.length) {
             return banCasesDateArray[caseNumber];

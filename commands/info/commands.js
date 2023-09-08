@@ -62,13 +62,14 @@ module.exports = {
       const selectCategory = new ActionRowBuilder()
       .addComponents(selectMenu)
       const msg = await message.reply({components: [selectCategory]})
+      client.functions.dataAction({add: true}, "selectMenuData", selectMenu.data.custom_id)
       return setTimeout(() => {
         selectMenu.setDisabled(true)
         const msgToEdit = message.channel.messages.cache.get(msg.id)
         if(!msgToEdit) return;
         embeds[0].description = '# Outdated commands panel.'
         msgToEdit.edit({embeds: [message.embeds[0]], components: [selectCategory]})
-        removeFromData(selectMenu.data.custom_id)
+        client.functions.dataAction({remove: true}, "selectMenuData", selectMenu.data.custom_id)
       }, ms("10 seconds"))
     }
 }
