@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
   res.send("hello world!");
 })
 const {truthOrDare} = require("multi-purpose")
-const {GatewayIntentBits, EmbedBuilder, Client, Partials} = require("discord.js");
+const {GatewayIntentBits, EmbedBuilder, Client, Partials, ChannelType} = require("discord.js");
 const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
 GatewayIntentBits.GuildMembers,
@@ -64,9 +64,6 @@ for (const fileName of functionFiles) {
   const functionName = fileName.split(".")[0]
   client.functions[functionName] = data
 }
-client.on("interactionCreate", async interaction => {
-  console.log(interaction)
-})
 client.on("messageCreate", async message => {
   if(message.content.toLowerCase() === "ping") {
     message.channel.send("pong")
@@ -105,7 +102,8 @@ const args = message.content.split(" ")
 const cmd = args.shift()
 const command = client.commands.get(cmd.split(client.config.prefix)[1])
 if(cmd.startsWith(client.config.prefix) && command) {
-  await command.run(client, message, args)
+  if(message.channel.type === ChannelType.GuildText && command.category !== "dev") return await command.run(client, message, args)
+  if(message.channel.type === ChannelType.DM && command.category === "dev") return await command.run(client, message, args)
 }
 })
 let TOKEN;
@@ -114,4 +112,4 @@ let TOKEN;
   }catch (e) {}
   const token = process.env.token || TOKEN
   !token ? (console.log("Missing token."), process.exit(0)) : client.login(token);
-require(__dirname+"/table.js")(client)
+require(__dirname+"/table.js")(client, true).then(console.log)

@@ -1,29 +1,26 @@
 const { readdirSync, readFileSync } = require("fs")
 const { join } = require("path")
-/**
- * @param {} message
- * @returns
- */
 module.exports = {
     description: "Show user the commands",
     run: async (client, message, args) => {
       const emojis = {}
-      readdirSync("commands").map(dir => {
-        return emojis[dir] = readFileSync(join(client.dir, "commands", dir, "emoji.txt"), "utf-8")
-      })
-      const ms = require("ms")
-        const {EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ComponentType, Collector, InteractionCollector, MessageCollector} = require("discord.js")
-        const embeds = [new EmbedBuilder()
-        .setTitle("Bot commands - Total: "+client.commands.size)
-        .setDescription("# Select a category")]
       const commands = []
+      readdirSync("commands").forEach(dir => {
+        emojis[dir] = readFileSync(join(client.dir, "commands", dir, "emoji.txt"), "utf-8")
+        readdirSync(`commands/${dir}`).filter(fileName => fileName.endsWith(".js")).forEach(file => {
+          const commandData = require(join(client.dir, 'commands', dir, file))
+          commandData.category = dir
+          commandData.name = file.split(".")[0]
+          commands.push(commandData)
+      })
+    })
+      const ms = require("ms")
+        const {EmbedBuilder, StringSelectMenuBuilder, ActionRowBuilder, StringSelectMenuOptionBuilder, ButtonBuilder, ButtonStyle} = require("discord.js")
+        const embeds = [new EmbedBuilder()
+        .setTitle("Bot commands - Total: "+commands.length)
+        .setDescription("# Select a category")]
       const options = []
       var index = -1
-      for (const command of client.commands) {
-        const newObject = command[1]
-        newObject.name = command[0]
-        commands.push(newObject)
-      }
       const categories = {}
       for (category of commands.map(command => command.category)) {
         categories[category] = []
@@ -62,21 +59,42 @@ module.exports = {
       .addOptions(
         ...options
         )
+      const closeButton = new ActionRowBuilder()
+      .addComponents(
+        new ButtonBuilder()
+        .setCustomId("closeSelectMenu")
+        .setLabel("CLOSE")
+        .setStyle(ButtonStyle.Danger)
+      )
       const selectCategory = new ActionRowBuilder()
       .addComponents(selectMenu)
-      const msg = await message.reply({embeds: [embeds[0]], components: [selectCategory]})
+      const msg = await message.reply({embeds: [embeds[0]], components: [selectCategory, closeButton]})
       const filter = (i) => i.user.id === message.author.id
-      const collector = msg.createMessageComponentCollector({componentType: ComponentType.StringSelect, filter, time: ms("10 seconds")})
+      const collector = msg.createMessageComponentCollector({filter, time: ms("5 minutes")})
       collector.on('collect', i => {
-        console.log(i)
+        if(i.customId === "selectCategory") {
+          const values = i.values
+          const originalEmbed = embeds[0]
+          delete originalEmbed.data.title
+          originalEmbed.data.description = '# Bot commands - Total: '+commands.length
+          msg.edit({embeds: [originalEmbed, embeds[Number(values[0])+1]], components: [selectCategory, closeButton]})
+          i.deferUpdate()
+        }
+        if(i.customId === 'closeSelectMenu') {
+          DisableSelectMenu()
+        }
       })
-      collector.on('end', () => {
+      function DisableSelectMenu () {
         selectMenu.setDisabled(true)
         const msgToEdit = message.channel.messages.cache.get(msg.id)
         if(!msgToEdit) return;
         embeds[0].data.description = '# Outdated commands panel.'
         const editedEmbed = embeds[0]
         msgToEdit.edit({embeds: [editedEmbed], components: [selectCategory]})
+      }
+      collector.on('end', () => {
+        if(selectMenu.data.disabled) return;
+        DisableSelectMenu()
       })
     }
 }

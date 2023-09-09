@@ -15,7 +15,7 @@ module.exports = {
         if(guild.bans.cache.get(client.users.cache.get(args[0]) || client.users.cache.find(user => user.username === args[0]) || args[0])) {
         return message.reply("Member has got banned from the server.")
         }else if (!member) {
-            return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username\n(Maybe the member isn't in the server...)");
+          return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username");
         }
 
         if (member.roles.highest.position >= message.member.roles.highest.position) {

@@ -17,5 +17,5 @@ const config = {
     content: chalk.bold(chalk.white('COMMANDS')),
     }
 }
-console.log(table(data, config));
+return table(data, config);
 }

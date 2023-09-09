@@ -6,7 +6,7 @@ module.exports = {
       const bans = await guild.bans.fetch()
         const bannedMember = message.mentions.users.first() || bans.get(args[0]) || client.users.cache.find(user => user.username === args[0])
         if (!bannedMember) {
-            return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username\n(Maybe the member isn't in the server...)");
+          return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username");
         }else if (bannedMember.user.bot) {
           return message.reply("Invalid request:\n> cannot apply moderation action to bots.")
         }

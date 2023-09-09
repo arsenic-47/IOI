@@ -8,7 +8,7 @@ module.exports = {
       const members = await guild.members.fetch()
         const member = message.mentions.members.first() || members.get(args[0]) || guild.members.cache.find(member => member.user.username === args[0]);
         if (!member) {
-            return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username\n(Maybe the member isn't in the server...)");
+          return message.reply("Please provide one of these:\n1. Member id\n2. Member mention\n3. Member username");
         }else if (member.user.bot) {
           return message.reply("Invalid request:\n> cannot apply moderation action to bots.")
         }else if(member.communicationDisabledUntilTimestamp) {
