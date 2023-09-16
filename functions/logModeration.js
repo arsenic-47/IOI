@@ -1,5 +1,4 @@
 const client = require("..")
-const ms = require("ms")
 module.exports = function (action, author, target, guild, reason, duration, date) {
   let REASONSTRING = '';
   let DURATIONSTRING = '';
